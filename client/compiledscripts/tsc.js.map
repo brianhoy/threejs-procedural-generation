@@ -1,0 +1,1 @@
+{"version":3,"file":"tsc.js","sourceRoot":"","sources":["../scripts/sky/Sky.ts","../scripts/player/PointerLockControls.ts","../scripts/player/Player.ts","../scripts/Game.ts","../scripts/Main.ts","../scripts/procedural-generation/generator.ts"],"names":[],"mappings":""}

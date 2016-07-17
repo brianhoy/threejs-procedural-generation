@@ -1,0 +1,15 @@
+{
+  "name": "retyped-physijs-tsd-ambient",
+  "description": "TypeScript typings for physijs",
+  "version": "0.0.0-0",
+  "licence": "MIT",
+  "repository": "https://github.com/retyped/physijs-tsd-ambient",
+  "typescript": {
+    "definition": "physijs.d.ts"
+  },
+  "keywords": [
+    "retyped",
+    "tsd",
+    "tsd-ambient"
+  ]
+}

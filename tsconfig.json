@@ -1,0 +1,14 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "commonjs",
+        "removeComments": true,
+        "outDir": "./client/compiledscripts",
+        "sourceMap": true
+    },
+    "exclude": [
+        "node_modules",
+        "wwwroot",
+        "typings"
+    ]
+}

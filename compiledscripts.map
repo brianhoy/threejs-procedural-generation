@@ -1,0 +1,1 @@
+{"version":3,"file":"compiledscripts","sourceRoot":"","sources":["client/scripts/sky/Sky.ts","client/scripts/player/PointerLockControls.ts","client/scripts/player/Player.ts","client/scripts/Game.ts","client/scripts/Main.ts","client/scripts/procedural-generation/generator.ts"],"names":[],"mappings":""}

@@ -1,0 +1,16 @@
+{
+  "name": "brianhphysijs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"node server.js\" \"watchify client/compiledscripts/Main.js -o client/compiledscripts/bundle.js\" \"tsc --watch\""
+  },
+  "author": "",
+  "license": "ISC"
+}

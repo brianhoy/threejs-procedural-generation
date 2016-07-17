@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<script type="text/javascript" src="scripts/vendor/three.min.js"></script>
+		<script type="text/javascript" src="scripts/vendor/simplexnoise.js"></script>
+		<script type="text/javascript" src="scripts/vendor/threex.js"></script>
+		<script type="text/javascript" src="scripts/vendor/perlin.js"></script>
+		<script type="text/javascript" src="scripts/vendor/physi.js"></script>
+		<style>
+			body {
+				margin: 0;
+			}	
+			.debug {
+				z-index: 2;
+				position: fixed;
+				color: white;
+				background-color: rgba(0, 0, 0, 0.3);
+				width: 30vw;
+			}
+			#debugChunks {
+				color: white;
+			}
+			table, th, td {
+				border: 1px solid white;
+				border-collapse: collapse;
+			}
+
+		</style>
+		<script type="text/javascript">
+			Physijs.scripts.worker = 'scripts/vendor/physijs_worker.js';
+			Physijs.scripts.ammo = 'ammo.js';
+		</script>
+		<div class="debug">
+			<p> position: <div id="debugPosition"></div> </p>
+			<p> chunk coordinates: <div id="debugChunkCoordinates"></div> </p>
+			<p> loaded chunks </p>
+			<table id="debugChunks">
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+			</table>
+		</div>
+		<script type="text/javascript" src="compiledscripts/bundle.js"></script>
+	</head>
+	<body>
+	</body>
+</html>
