@@ -5,15 +5,19 @@ var ChunkManager = (function () {
         this._debugger = _debugger;
         this.tempObjects = [];
         this.generator = new Generator_1.Generator();
-        this.renderDistance = 1;
+        this.renderDistance = 3;
+        var arrlen = (2 * this.renderDistance) + 1;
         this.scene = scene;
         this.player = player;
-        this.chunks = new Array(3);
+        this.chunks = new Array(arrlen);
         this.playerChunkCoordinates = new THREE.Vector3(0, 0, 0);
         this.middleChunkCoordinates = new THREE.Vector3(0, 0, 0);
         this.deltaChunkCoordinates = new THREE.Vector3(0, 0, 0);
         for (var i = 0; i < this.chunks.length; i++) {
-            this.chunks[i] = [null, null, null];
+            this.chunks[i] = [];
+            for (var j = 0; j < arrlen; j++) {
+                this.chunks[i].push(null);
+            }
         }
         this.fillNullChunks(0, 0);
     }
@@ -23,12 +27,8 @@ var ChunkManager = (function () {
         this.deltaChunkCoordinates.z = this.playerChunkCoordinates.z - this.middleChunkCoordinates.z;
         if (this.deltaChunkCoordinates.x != 0 || this.deltaChunkCoordinates.z != 0) {
             var mChunk = this.chunks[this.renderDistance][this.renderDistance];
-            console.log("shift delta x:", -this.deltaChunkCoordinates.x, "z:", this.deltaChunkCoordinates.z);
-            this.shift(-this.deltaChunkCoordinates.x, this.deltaChunkCoordinates.z);
-            this.updateDebugInfo();
-            console.log("calling fillNullChunks: ", this.playerChunkCoordinates);
+            this.shift(-this.deltaChunkCoordinates.x, -this.deltaChunkCoordinates.z);
             this.fillNullChunks(this.playerChunkCoordinates.x, this.playerChunkCoordinates.z);
-            setTimeout(this.updateDebugInfo.bind(this), 500);
         }
     };
     ChunkManager.prototype.updateDebugInfo = function () {
@@ -38,7 +38,6 @@ var ChunkManager = (function () {
         }
     };
     ChunkManager.prototype.shift = function (x, y) {
-        console.log("Shifting x: ", x, ", z: ", y + ", chunks: ", this.chunks);
         if (x > 0) {
             for (var i = 0; i < this.chunks.length; i++) {
                 for (var j = this.chunks[i].length - 1; j >= 0; j--) {
@@ -70,7 +69,7 @@ var ChunkManager = (function () {
             }
         }
         if (y > 0) {
-            for (var i = 0; i + y < this.chunks.length; i++) {
+            for (var i = 0; i < this.chunks.length; i++) {
                 if (i + y >= this.chunks.length) {
                     for (var j = 0; j < this.chunks.length; j++) {
                         if (i - y < 0 && this.chunks[i][j]) {
@@ -109,7 +108,14 @@ var ChunkManager = (function () {
                 }
             }
         }
-        console.log("After shfting, chunks = ", this.chunks);
+    };
+    ChunkManager.prototype.nullifyChunks = function () {
+        for (var i = 0; i < this.chunks.length; i++) {
+            for (var j = 0; j < this.chunks.length; j++) {
+                this.unloadChunk(this.chunks[i][j], i, j);
+                this.chunks[i][j] = null;
+            }
+        }
     };
     ChunkManager.prototype.unloadChunk = function (chunk, x, y) {
         this.scene.remove(chunk);
@@ -118,11 +124,11 @@ var ChunkManager = (function () {
         if (this.chunks[0].length % 2 != 1 || this.chunks.length % 2 != 1)
             throw new Error("Chunk render distance is not odd");
         var middleXY = this.renderDistance;
-        for (var i = 0; i < this.chunks.length; i++) {
-            for (var j = 0; j < this.chunks[0].length; j++) {
-                if (this.chunks[i][j] == null) {
-                    this.chunks[i][j] = this.generator.createTerrain(j - middleXY + middleChunkY, -i + middleXY + middleChunkX);
-                    this.scene.add(this.chunks[i][j]);
+        for (var row = 0; row < this.chunks.length; row++) {
+            for (var col = 0; col < this.chunks[0].length; col++) {
+                if (this.chunks[row][col] == null) {
+                    this.chunks[row][col] = this.generator.createTerrain((col) - middleXY + middleChunkX, -row + middleXY + middleChunkY);
+                    this.scene.add(this.chunks[row][col]);
                 }
             }
         }
@@ -135,8 +141,8 @@ var ChunkManager = (function () {
     ChunkManager.prototype.updateChunkCoordinates = function () {
         this.playerChunkCoordinates.x = Math.floor(this.player.mesh.position.x / 1000);
         this.playerChunkCoordinates.z = Math.floor(this.player.mesh.position.z / 1000);
-        this.middleChunkCoordinates.x = Math.floor(this.chunks[1][1].position.x / 1000);
-        this.middleChunkCoordinates.z = Math.floor(this.chunks[1][1].position.z / 1000);
+        this.middleChunkCoordinates.x = Math.floor(this.chunks[this.renderDistance][this.renderDistance].position.x / 1000);
+        this.middleChunkCoordinates.z = Math.floor(this.chunks[this.renderDistance][this.renderDistance].position.z / 1000);
     };
     return ChunkManager;
 }());

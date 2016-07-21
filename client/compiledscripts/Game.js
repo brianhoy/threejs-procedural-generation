@@ -18,20 +18,18 @@ var Game = (function () {
         this.lastTime = Date.now();
         document.body.appendChild(this.renderer.domElement);
         this.initPlayer();
-        this.chunkManager = new ChunkManager_1.ChunkManager(this.player, this.scene, this.debugger);
+        this.chunkManager = new ChunkManager_1.ChunkManager(this.player, this.scene);
         this.render();
     }
     Game.prototype.initScene = function () {
         {
-            var geometry = new THREE.CubeGeometry(10, 10, 10);
+            var geometry = new THREE.CubeGeometry(100, 100, 100);
             var material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-            for (var i = 0; i <= 5; i++) {
-                var cube = new Physijs.BoxMesh(geometry, material);
-                cube.position.x = (Math.random() - 0.5) * 200;
-                cube.position.y = (Math.random() - 0.5) * 200;
-                cube.position.z = (Math.random() - 0.5) * 200;
-                this.scene.add(cube);
-            }
+            var cube = new Physijs.BoxMesh(geometry, material);
+            cube.position.x = 1000;
+            cube.position.y = 1000;
+            cube.position.z = 1000;
+            this.scene.add(cube);
         }
         {
             var geometry = new THREE.CylinderGeometry(200, 200, 5, 32);
@@ -62,7 +60,7 @@ var Game = (function () {
     ;
     Game.prototype.render = function (s) {
         var scope = s || this;
-        if (Date.now() - scope.lastTime > 2000) {
+        if (Date.now() - scope.lastTime > 1000) {
             scope.lastTime = Date.now();
             scope.softUpdate();
         }
