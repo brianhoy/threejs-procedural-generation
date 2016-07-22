@@ -183,7 +183,7 @@ var Sky = (function () {
         this.scene.add(this.sunSphere);
     };
     Sky.prototype.createSunDirectionalLight = function () {
-        this.sunDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        this.sunDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
         this.sunDirectionalLight.position.set(0, 1, 0);
         this.scene.add(this.sunDirectionalLight);
     };

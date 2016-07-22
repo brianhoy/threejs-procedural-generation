@@ -63,14 +63,9 @@ export class Game {
 
 		// Light
 		{
-			let geometry = new THREE.CylinderGeometry(200, 200, 5, 32)
-			let material = new THREE.MeshLambertMaterial( { color: 0xdddddd } );
-			
-			let cylinder = new Physijs.CylinderMesh(geometry, material, 0);
-			cylinder.position.x = -60;
-			cylinder.position.y = -60;
-			cylinder.position.z = -60;
-			this.scene.add(cylinder);
+			let light = new THREE.PointLight( 0xff0000, 1, 100 );
+			light.position.set( 0, 0, 0 );
+			this.scene.add( light );
 		}
 		
 		// Ambient light

@@ -2,10 +2,10 @@
 /// <reference path="../../../typings/physijs/physijs.d.ts"/>
 
 declare var SimplexNoise;
+declare var Voroni;
 
 export class Generator {
 	private noiseGenerator: any;
-	private mountainNoiseGenerator: any;
 	private mountainMultiplierNoiseGenerator: any;
 	private textureLoader: THREE.TextureLoader;
 	private grassTexture: THREE.Texture;
@@ -15,7 +15,6 @@ export class Generator {
 	constructor(textureLoader?: THREE.TextureLoader) {
 		this.textureLoader = textureLoader || new THREE.TextureLoader();
 		this.noiseGenerator = new SimplexNoise();
-		this.mountainNoiseGenerator = new SimplexNoise(); 
 		this.mountainMultiplierNoiseGenerator = new SimplexNoise();
 		this.shaders =  { terrainLambert : THREE.ShaderLib[ 'lambert' ] };
 
@@ -57,60 +56,7 @@ export class Generator {
 	}
 
 	private terrainLambertMaterial(parameters, uniforms_) {
-		var material = new THREE.ShaderMaterial( {
-			/*vertexShader: `
-				#define LAMBERT
-
-				varying vec3 vLightFront;
-
-				#ifdef DOUBLE_SIDED
-
-					varying vec3 vLightBack;
-
-				#endif
-
-				#include <common>
-				#include <uv_pars_vertex>
-				#include <uv2_pars_vertex>
-				#include <envmap_pars_vertex>
-				#include <bsdfs>
-				#include <lights_pars>
-				#include <color_pars_vertex>
-				#include <morphtarget_pars_vertex>
-				#include <skinning_pars_vertex>
-				#include <shadowmap_pars_vertex>
-				#include <logdepthbuf_pars_vertex>
-				#include <clipping_planes_pars_vertex>
-
-				varying vec3 vertexColor;
-
-				void main() {
-					vertexColor = vec3(255, 100, 0);
-
-					#include <uv_vertex>
-					#include <uv2_vertex>
-					#include <color_vertex>
-
-					#include <beginnormal_vertex>
-					#include <morphnormal_vertex>
-					#include <skinbase_vertex>
-					#include <skinnormal_vertex>
-					#include <defaultnormal_vertex>
-
-					#include <begin_vertex>
-					#include <morphtarget_vertex>
-					#include <skinning_vertex>
-					#include <project_vertex>
-					#include <logdepthbuf_vertex>
-					#include <clipping_planes_vertex>
-
-					#include <worldpos_vertex>
-					#include <envmap_vertex>
-					#include <lights_lambert_vertex>
-					#include <shadowmap_vertex>
-
-				}			`,
-			fragmentShader: `
+		THREE.ShaderChunk["meshlambert_premain_fragment"] = `
 				uniform vec3 diffuse;
 				uniform vec3 emissive;
 				uniform float opacity;
@@ -142,71 +88,65 @@ export class Generator {
 				#include <specularmap_pars_fragment>
 				#include <logdepthbuf_pars_fragment>
 				#include <clipping_planes_pars_fragment>
+		`;
+
+		var material = new THREE.ShaderMaterial( {
+			vertexShader: `
+				#define LAMBERT
+
+				varying vec3 vLightFront;
+
+				#ifdef DOUBLE_SIDED
+
+					varying vec3 vLightBack;
+
+				#endif
+
+				#include <common>
+				#include <uv_pars_vertex>
+				#include <uv2_pars_vertex>
+				#include <envmap_pars_vertex>
+				#include <bsdfs>
+				#include <lights_pars>
+				#include <color_pars_vertex>
+				#include <morphtarget_pars_vertex>
+				#include <skinning_pars_vertex>
+				#include <shadowmap_pars_vertex>
+				#include <logdepthbuf_pars_vertex>
+				#include <clipping_planes_pars_vertex>
 
 				varying vec3 vertexColor;
-
-				void main() {
-					#include <clipping_planes_fragment>
-
-
-					vec4 diffuseColor = vec4(diffuse, opacity );
-					ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
-					vec3 totalEmissiveRadiance = emissive;
-
-					#include <logdepthbuf_fragment>
-					#include <map_fragment>
-					#include <color_fragment>
-					#include <alphamap_fragment>
-					#include <alphatest_fragment>
-					#include <specularmap_fragment>
-					#include <emissivemap_fragment>
-
-					// accumulation
-					reflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );
-
-					#include <lightmap_fragment>
-
-					reflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );
-
-					#ifdef DOUBLE_SIDED
-
-						reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
-
-					#else
-
-						reflectedLight.directDiffuse = vLightFront;
-
-					#endif
-
-					reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();
-
-					// modulation
-					#include <aomap_fragment>
-
-					vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
-
-					#include <normal_flip>
-					#include <envmap_fragment>
-
-					gl_FragColor = vec4( outgoingLight, diffuseColor.a );
-
-					#include <premultiplied_alpha_fragment>
-					#include <tonemapping_fragment>
-					#include <encodings_fragment>
-					#include <fog_fragment>
-				}
-			`,*/
-			vertexShader: `
 				varying vec2 vUv;
 				varying vec4 worldPosition;
+
 				void main() {
+					vertexColor = vec3(255, 100, 0);
 					vUv = uv;
 					worldPosition = modelMatrix * vec4( position, 1.0 );
-					gl_Position = projectionMatrix *
-								modelViewMatrix *
-								vec4(position,1.0);
-				}
-			`,
+
+					#include <uv_vertex>
+					#include <uv2_vertex>
+					#include <color_vertex>
+
+					#include <beginnormal_vertex>
+					#include <morphnormal_vertex>
+					#include <skinbase_vertex>
+					#include <skinnormal_vertex>
+					#include <defaultnormal_vertex>
+
+					#include <begin_vertex>
+					#include <morphtarget_vertex>
+					#include <skinning_vertex>
+					#include <project_vertex>
+					#include <logdepthbuf_vertex>
+					#include <clipping_planes_vertex>
+
+					#include <worldpos_vertex>
+					#include <envmap_vertex>
+					#include <lights_lambert_vertex>
+					#include <shadowmap_vertex>
+
+				}			`,
 			fragmentShader: `
 				uniform float time;
 				varying vec2 vUv;
@@ -303,25 +243,82 @@ export class Generator {
 
 				varying vec4 worldPosition;
 
+				#include <meshlambert_premain_fragment>
+
+				float sigmoid(float x) {
+					return x / (1.0 + abs(x));
+				}
+
+				varying vec3 vertexColor;
+
 				void main() {
+					#include <clipping_planes_fragment>
+
+
+					vec4 diffuseColor = vec4(diffuse, opacity );
+					ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+					vec3 totalEmissiveRadiance = emissive;
+
+					#include <logdepthbuf_fragment>
+					#include <map_fragment>
 					if(worldPosition.y > 300.0) { //snow
 						float noise = snoise(vec3(worldPosition.x * 4.0, worldPosition.y * 4.0, worldPosition.z * 4.0))/20.0;
-						gl_FragColor = vec4(1.0 - noise, 1.0 - noise, 1.0 - noise, 1);
+						diffuseColor.rgb *= vec3(1.0 - noise, 1.0 - noise, 1.0 - noise);
 					}
 					else if (worldPosition.y > 100.0) { // dirt
-						float scale = 0.5;
+						float scale = 5.0;
 						float effectscale = 0.2;
 						float noise = (snoise(vec3(worldPosition.x * scale, worldPosition.y * scale, worldPosition.z * scale)) - 0.2) * effectscale;
-						gl_FragColor = vec4(0.54 + noise, 0.27 + noise, 0.07 + noise, 1.0);
+						noise = sigmoid(noise);
+						diffuseColor.rgb *= vec3(0.54 + noise, 0.27 + noise, 0.07 + noise);
 					}
 					else { // grass
-						float scale = 0.5;
+						float scale = 4.0;
 						float effectscale = 0.08;
 						float noise = (snoise(vec3(worldPosition.x * scale, worldPosition.y * scale, worldPosition.z * scale)) - 0.2) * effectscale;
-						gl_FragColor = vec4(0, 0.48 + noise, 0.05 + noise, 1.0);
+						diffuseColor.rgb *= vec3(0, 0.48 + noise, 0.05 + noise);
 
 					}
-					//gl_FragColor = (worldPosition.y, 0, 0, 1);
+
+					#include <color_fragment>
+					#include <alphamap_fragment>
+					#include <alphatest_fragment>
+					#include <specularmap_fragment>
+					#include <emissivemap_fragment>
+
+					// accumulation
+					reflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );
+
+					#include <lightmap_fragment>
+
+					reflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );
+
+					#ifdef DOUBLE_SIDED
+
+						reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
+
+					#else
+
+						reflectedLight.directDiffuse = vLightFront;
+
+					#endif
+
+					reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();
+
+					// modulation
+					#include <aomap_fragment>
+
+					vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
+
+					#include <normal_flip>
+					#include <envmap_fragment>
+
+					gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+
+					#include <premultiplied_alpha_fragment>
+					#include <tonemapping_fragment>
+					#include <encodings_fragment>
+					#include <fog_fragment>
 				}
 			`,
 			uniforms: THREE.UniformsUtils.merge( [ 
@@ -391,8 +388,60 @@ export class Generator {
 	private mountainMultiplierNoise: number;
 
 	private getMountainNoise(x: number, y: number): number {
-		this.mountainNoise = this.mountainNoiseGenerator.noise(x / 5000, y / 5000) * 1000;
-		this.mountainMultiplierNoise = this.mountainMultiplierNoiseGenerator.noise(x / 100000, y / 100000);
+		this.mountainNoise = 100 + (this.worleyNoise(x / 5000, y / 5000, 0.1) * -100);
+		this.mountainMultiplierNoise = this.mountainMultiplierNoiseGenerator.noise(x / 5000, y / 5000);
 		return 10 * this.fastSigmoid(this.mountainMultiplierNoise) * this.mountainNoise;
+	}
+
+	private worleyNoise(xCoordinate: number, yCoordinate: number, scale: number) {
+		function cos(angle) {
+				if (angle.length) return angle.map(cos);
+				return Math.cos(angle);
+		}
+		function fract(x) {
+				if (x.length) return x.map(fract);
+				return x - Math.floor(x);
+		}
+		function floor(x) {
+				if (x.length) return x.map(floor);
+				return Math.floor(x);
+		}
+		function vec2(x, y) {
+				if (x == null) x = 0;
+				if (y == null) y = x;
+				return [x, y]
+		}
+		vec2.add = function anonymous(out,a,b) {
+			out[0] = a[0] + b[0];
+			out[1] = a[1] + b[1]
+			return out;
+		}
+		function length(x) {
+				var sum = 0;
+				for (var i = 0; i < x.length; i++) {
+						sum += x[i]*x[i];
+				}
+				return Math.sqrt(sum);
+		}
+		function r (n) {
+				return fract(cos(n * 89.42) * 343.42);
+		};
+		function r_vec2 (n) {
+				return [r(n[0] * 23.62 - 300.0 + n[1] * 34.35), r(n[0] * 45.13 + 256.0 + n[1] * 38.89)];
+		};
+		function worley (n, s) {
+				var dis = 2.0;
+				for (var x = -1; x <= 1; x++) {
+					for (var y = -1; y <= 1; y++) {
+						var p = vec2.add([], floor([n[0] / s, n[1] / s]), [x, y]);
+						var d = length([r_vec2(p)[0] + x - fract([n[0] / s, n[1] / s])[0], r_vec2(p)[1] + y - fract([n[0] / s, n[1] / s])[1]]);
+						if (dis > d) {
+						dis = d;
+						};
+					};
+				};
+				return dis;
+		};
+		return worley([xCoordinate, yCoordinate], scale);
 	}
 }

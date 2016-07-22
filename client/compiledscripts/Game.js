@@ -32,13 +32,9 @@ var Game = (function () {
             this.scene.add(cube);
         }
         {
-            var geometry = new THREE.CylinderGeometry(200, 200, 5, 32);
-            var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-            var cylinder = new Physijs.CylinderMesh(geometry, material, 0);
-            cylinder.position.x = -60;
-            cylinder.position.y = -60;
-            cylinder.position.z = -60;
-            this.scene.add(cylinder);
+            var light_1 = new THREE.PointLight(0xff0000, 1, 100);
+            light_1.position.set(0, 0, 0);
+            this.scene.add(light_1);
         }
         var light = new THREE.AmbientLight(0x404040);
         this.scene.add(light);
